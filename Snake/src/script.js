@@ -44,9 +44,12 @@ var game = {
             this.interval = setInterval(this.update.bind(this), 20)
         }.bind(this))
         window.addEventListener("blur", function(e) {
-            clearInterval(this.interval)
+            this.stop()
         }.bind(this))
     },
+    stop: function() {
+        clearInterval(this.interval)
+    }.bind(this),
     clear: function() {
         this.context.clearRect(0, 0, this.width, this.height)
     },
@@ -91,7 +94,7 @@ var game = {
                 }
             } else if (moveResult === 3) {
                 // Stop the game
-                clearInterval(this.interval)
+                this.stop()
                 alert("You lose, please reload to try again.")
                 window.location.reload()
             }
