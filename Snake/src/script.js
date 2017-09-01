@@ -9,19 +9,23 @@ var game = {
     // Game attributes
     canvas: document.getElementById("gameCanvas2"),
     width: 800,
-    height: 480,
+    height: 400,
+    otherHeight: 80,
     prevTime: Date.now(),
     speed: 200,
+    score: 0,
     key: null,
     player: {},
     food: {},
+    scoreText: {},
     // Game methods
     start: function() {
         this.canvas.width = this.width
-        this.canvas.height = this.height
+        this.canvas.height = this.height + this.otherHeight
         this.context = this.canvas.getContext("2d")
         this.player = new snake(this.context, 5, 5)
-        this.food = new food(this.context, 50, 5)
+        this.food = new food(this.context, 30, 5)
+        this.scoreText = new score(this.context, 20, this.height + this.otherHeight - 30, this.score)
 
         this.interval = setInterval(this.update.bind(this), 20)
         document.addEventListener("keydown", function(e) {
@@ -35,12 +39,16 @@ var game = {
         }.bind(this))
     },
     clear: function() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        this.context.clearRect(0, 0, this.width, this.height)
     },
     update: function() {
         if (Date.now() - this.prevTime >= this.speed) {
             this.prevTime += this.speed
             this.clear()
+
+            // Render menu area
+            this.context.fillStyle = "darkseagreen"
+            this.context.fillRect(0, this.height, this.width, this.otherHeight)
 
             // Update the direction
             if (this.key) {
@@ -61,8 +69,15 @@ var game = {
                     this.food.x = Math.floor(Math.random() * this.width / 10)
                     this.food.y = Math.floor(Math.random() * this.height / 10)
                     this.player.body.push({})
+                    this.score += 1
                 }
                 this.food.update()
+            }
+
+            // Update the score
+            if (this.scoreText.update) {
+                this.scoreText.score = this.score
+                this.scoreText.update()
             }
         }
     }
@@ -133,6 +148,18 @@ function food(context, x, y) {
     this.update = function() {
         context.fillStyle = 'white'
         context.fillRect(this.x * 10, this.y * 10, this.width, this.height)
+    }
+}
+
+function score(context, x, y, score) {
+    this.score = score
+
+    this.update = function() {
+        context.font = "32px sans-serif"
+        context.strokeStyle = 'gray'
+        context.strokeText("Score: " + this.score, x, y)
+        context.fillStyle = 'white'
+        context.fillText("Score: " + this.score, x, y)
     }
 }
 
