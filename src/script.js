@@ -6,19 +6,19 @@ var game = {
         this.context = this.canvas.getContext("2d")
         this.interval = setInterval(updateGame, 20)
         document.addEventListener('keydown', function (e) {
-            game.key = e.keyCode
-            game.keys = (game.keys || [])
+            game.keys = (game.keys || {})
             game.keys[e.keyCode] = true
         })
         window.addEventListener('keyup', function (e) {
             if (game.keys[e.keyCode]) {
-                game.keys[e.keyCode] = false
+                delete game.keys[e.keyCode]
             }
         })
     },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
-    }
+    },
+    keys: {}
 }
 
 var player
