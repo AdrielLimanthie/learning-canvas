@@ -8,13 +8,16 @@ var KEY_DOWN = 40
 var game = {
     // Game attributes
     canvas: document.getElementById("gameCanvas2"),
+    width: 800,
+    height: 480,
     prevTime: Date.now(),
+    speed: 500,
     player: {},
     key: null,
     // Game methods
     start: function() {
-        this.canvas.width = 800
-        this.canvas.height = 480
+        this.canvas.width = this.width
+        this.canvas.height = this.height
         this.context = this.canvas.getContext("2d")
 
         this.interval = setInterval(this.update.bind(this), 20)
@@ -29,8 +32,8 @@ var game = {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     },
     update: function() {
-        if (Date.now() - this.prevTime >= 500) {
-            this.prevTime += 500
+        if (Date.now() - this.prevTime >= this.speed) {
+            this.prevTime += this.speed
             if (this.key) {
                 this.player.direction = this.key
                 this.key = null
@@ -38,7 +41,7 @@ var game = {
 
             if (this.player.newPosition && this.player.update) {
                 this.clear()
-                this.player.newPosition()
+                this.player.newPosition(this.width / 10, this.height / 10)
                 this.player.update()
             }
         }
@@ -57,15 +60,31 @@ function snake(context, x, y) {
         context.fillStyle = 'red'
         context.fillRect(this.x * 10, this.y * 10, this.width, this.height)
     }
-    this.newPosition = function() {
+    this.newPosition = function(maxX, maxY) {
         if (this.direction === KEY_RIGHT) {
-            this.x += 1
+            if (this.x + 1 < maxX) {
+                this.x += 1
+            } else {
+                this.x = this.x + 1 - maxX
+            }
         } else if (this.direction === KEY_LEFT) {
-            this.x -= 1
+            if (this.x - 1 >= 0) {
+                this.x -= 1
+            } else {
+                this.x = this.x - 1 + maxX
+            }
         } else if (this.direction === KEY_DOWN) {
-            this.y += 1
+            if (this.y + 1 < maxY) {
+                this.y += 1
+            } else {
+                this.y = this.y + 1 - maxY
+            }
         } else if (this.direction === KEY_UP) {
-            this.y -= 1
+            if (this.y - 1 >= 0) {
+                this.y -= 1
+            } else {
+                this.y = this.y - 1 + maxY
+            }
         }
     }
 }
