@@ -82,6 +82,13 @@ var game = {
 
                 // Increment score
                 this.score += 1
+                if (this.score === 5) {
+                    this.speed = 75
+                } else if (this.score === 10) {
+                    this.speed = 50
+                } else if (this.score === 50) {
+                    this.speed = 25
+                }
             } else if (moveResult === 3) {
                 // Stop the game
                 clearInterval(this.interval)
