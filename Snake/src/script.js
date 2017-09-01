@@ -12,7 +12,7 @@ var game = {
     height: 400,
     otherHeight: 80,
     prevTime: Date.now(),
-    speed: 200,
+    speed: 100,
     score: 0,
     key: null,
     player: {},
@@ -37,6 +37,15 @@ var game = {
                 }
             }
         }.bind(this))
+
+        // Add event listener for losing/gaining focus on the page
+        window.addEventListener("focus", function(e) {
+            this.prevTime = Date.now()
+            this.interval = setInterval(this.update.bind(this), 20)
+        }.bind(this))
+        window.addEventListener("blur", function(e) {
+            clearInterval(this.interval)
+        }.bind(this))
     },
     clear: function() {
         this.context.clearRect(0, 0, this.width, this.height)
@@ -57,20 +66,31 @@ var game = {
             }
 
             // Update the snake
-            var foodEaten
+            var moveResult
             if (this.player.move && this.player.update) {
-                foodEaten = this.player.move(this.width / 10, this.height / 10, this.food.x, this.food.y)
+                moveResult = this.player.move(this.width / 10, this.height / 10, this.food.x, this.food.y)
                 this.player.update()
+            }
+
+            if (moveResult === 1) {
+                // Generate new food in a random location
+                this.food.x = Math.floor(Math.random() * this.width / 10)
+                this.food.y = Math.floor(Math.random() * this.height / 10)
+
+                // Add the length of the snake
+                this.player.body.push({})
+
+                // Increment score
+                this.score += 1
+            } else if (moveResult === 3) {
+                // Stop the game
+                clearInterval(this.interval)
+                alert("You lose, please reload to try again.")
+                window.location.reload()
             }
 
             // Update the food
             if (this.food.update) {
-                if (foodEaten) {
-                    this.food.x = Math.floor(Math.random() * this.width / 10)
-                    this.food.y = Math.floor(Math.random() * this.height / 10)
-                    this.player.body.push({})
-                    this.score += 1
-                }
                 this.food.update()
             }
 
@@ -131,10 +151,23 @@ function snake(context, x, y) {
             }
         }
 
-        if (this.body[0].x === foodX && this.body[0].y === foodY) {
-            return true
+        // 1 = food eaten, 2 = food not eaten, 3 = game over
+        head = this.body[0]
+        var isSuicide = false
+        for (var i = 1; i < this.body.length; i++) {
+            var node = this.body[i]
+            if (node.x === head.x && node.y === head.y) {
+                isSuicide = true
+            }
+        }
+        if (isSuicide) {
+            return 3
         } else {
-            return false
+            if (head.x === foodX && head.y === foodY) {
+                return 1
+            } else {
+                return 2
+            }
         }
     }
 }
