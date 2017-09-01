@@ -12,13 +12,16 @@ var game = {
     height: 480,
     prevTime: Date.now(),
     speed: 200,
-    player: {},
     key: null,
+    player: {},
+    food: {},
     // Game methods
     start: function() {
         this.canvas.width = this.width
         this.canvas.height = this.height
         this.context = this.canvas.getContext("2d")
+        this.player = new snake(this.context, 5, 5)
+        this.food = new food(this.context, 50, 5)
 
         this.interval = setInterval(this.update.bind(this), 20)
         document.addEventListener("keydown", function(e) {
@@ -37,15 +40,29 @@ var game = {
     update: function() {
         if (Date.now() - this.prevTime >= this.speed) {
             this.prevTime += this.speed
+            this.clear()
+
+            // Update the direction
             if (this.key) {
                 this.player.direction = this.key
                 this.key = null
             }
 
+            // Update the snake
+            var foodEaten
             if (this.player.move && this.player.update) {
-                this.clear()
-                this.player.move(this.width / 10, this.height / 10)
+                foodEaten = this.player.move(this.width / 10, this.height / 10, this.food.x, this.food.y)
                 this.player.update()
+            }
+
+            // Update the food
+            if (this.food.update) {
+                if (foodEaten) {
+                    this.food.x = Math.floor(Math.random() * this.width / 10)
+                    this.food.y = Math.floor(Math.random() * this.height / 10)
+                    this.player.body.push({})
+                }
+                this.food.update()
             }
         }
     }
@@ -68,7 +85,9 @@ function snake(context, x, y) {
             context.fillRect(node.x * 10, node.y * 10, this.width, this.height)
         }.bind(this))
     }
-    this.move = function(maxX, maxY) {
+    // This move method will return true if the head of the snake eats the food,
+    // and false if it doesn't
+    this.move = function(maxX, maxY, foodX, foodY) {
         this.body.pop()
         var head = this.body[0]
         if (this.direction === KEY_RIGHT) {
@@ -96,12 +115,27 @@ function snake(context, x, y) {
                 this.body.unshift({ x: head.x, y: head.y - 1 + maxY })
             }
         }
+
+        if (this.body[0].x === foodX && this.body[0].y === foodY) {
+            return true
+        } else {
+            return false
+        }
+    }
+}
+
+function food(context, x, y) {
+    this.width = 10
+    this.height = 10
+    this.x = x
+    this.y = y
+
+    this.update = function() {
+        context.fillStyle = 'white'
+        context.fillRect(this.x * 10, this.y * 10, this.width, this.height)
     }
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    // Player has to be instantiated after starting the game
-    // Otherwise, it will break the game
     game.start()
-    game.player = new snake(game.context, 5, 5)
 })
