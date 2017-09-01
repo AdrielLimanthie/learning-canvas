@@ -14,20 +14,39 @@ var game = {
 
 var player
 
-function snake(context, hor, ver) {
+var prevTime = Date.now()
+
+function snake(context, x, y) {
     this.width = 10
     this.height = 10
-    this.x = hor * 10
-    this.y = ver * 10
+    this.x = x
+    this.y = y
+    // Direction - R = Right, L = Left, U = Up, D = Down
+    this.direction = "R"
     this.update = function() {
         context.fillStyle = 'red'
-        context.fillRect(this.x, this.y, this.width, this.height)
+        context.fillRect(this.x * 10, this.y * 10, this.width, this.height)
+    }
+    this.newPosition = function() {
+        if (this.direction === "R") {
+            this.x += 1
+        } else if (this.direction === "L") {
+            this.x -= 1
+        } else if (this.direction === "U") {
+            this.y += 1
+        } else if (this.direction === "L") {
+            this.y -= 1
+        }
     }
 }
 
 function updateGame() {
-    game.clear()
-    player.update()
+    if (Date.now() - prevTime >= 500) {
+        prevTime += 500
+        game.clear()
+        player.newPosition()
+        player.update()
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
