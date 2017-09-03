@@ -6,7 +6,7 @@ var game = {
     height: 480,
     gameScreenX: 280,
     gameScreenWidth: 240,
-    prevTime: performance.now(),
+    prevTime: 0,
     initialized: false,
     elements: [],
     // Game methods
@@ -23,8 +23,14 @@ var game = {
         }
 
         // Calculate time difference between this cycle and the previous cycle
-        var diff = timestamp - this.prevTime
-        this.prevTime = timestamp
+        var diff
+        if (prevTime) {
+            diff = timestamp - this.prevTime
+            this.prevTime = timestamp
+        } else {
+            diff = 0
+            this.prevTime = performance.now()
+        }
 
         // Update the game
         this.update()
@@ -56,7 +62,7 @@ var game = {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    game.start()
+    game.start(performance.now())
 })
 
 // Want to make something like this
